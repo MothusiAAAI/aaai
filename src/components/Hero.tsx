@@ -4,24 +4,25 @@ export default function Hero() {
       <div className="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 items-center gap-10">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold leading-tight">
-            Digital Compliance for African Businesses
+            Digital Compliance Platfrom for African Businesses
           </h1>
-          <p className="mt-4 text-neutral-700">
-            AAAI connects professional bodies, regulators, local councils, financial institutions, and businesses in one trusted platform.
-            Digitize filings, verify professionals, and share data securely.
-          </p>
+          <div className="mt-4 space-y-4 text-neutral-700">
+  <p>
+    Accountable Africa AI is a secure digital compliance platform built in collaboration with legal and accounting professionals across Africa to ensure the integrity of business data. We help you eliminate fraud, reduce redundant document submissions, and simplify regulatory processes so you can focus on growth.
+  </p>
+</div>
           <div className="mt-6 flex gap-3">
             <a href="/products" className="px-5 py-3 rounded-full bg-black text-white">See pricing</a>
             <a href="#contact" className="px-5 py-3 rounded-full border">Talk to us</a>
           </div>
-          <div className="mt-6 text-xs text-neutral-500">Aligned with Vision 2036 and AfCFTA. Built in Botswana.</div>
+          <div className="mt-6 text-xs text-neutral-500"></div>
         </div>
         <div className="relative">
           <div className="aspect-[4/3] w-full rounded-2xl bg-white shadow grid grid-cols-2 gap-4 p-6">
-            <Card title="Partnered with Accounting and Law professionals to verify authenticity." text="" />
+            <Card title="Trusted data verified by accounting and legal professionals across Africa." text="" />
             <Card title="Find Compliance requirements across different African markets." text="" />
             <Card title="Seamlessly store and access your company data from anywhere." text="" />
-            <Card title="Build a credible track record for your business through online filing." text="" />
+            <Card title="Confidently engage in intra Africa trade with compliant suppliers across the Africa market." text="" />
           </div>
           <div className="absolute -bottom-4 -right-4 hidden md:block text-xs text-neutral-400">Illustrative UI only</div>
         </div>

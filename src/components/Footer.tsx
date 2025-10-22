@@ -8,7 +8,7 @@ export default function Footer() {
             <span className="font-semibold">Accountable Africa AI</span>
           </div>
           <p className="text-sm text-neutral-600 mt-3 max-w-sm">
-            Building trusted compliance infrastructure for Africa. Starting in Botswana. Aligned with AfCFTA.
+            Building trusted compliance infrastructure for Africa. Enabling AfCFTA and enabling ease of access to trade markets across Africa with simplified defined compliance processes.
           </p>
         </div>
         <div>
