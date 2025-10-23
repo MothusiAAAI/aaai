@@ -156,7 +156,7 @@ const AGREEMENTS: Record<string, Agreement> = {
   yearOfSigning: 2002, // modern agreement signed 2002 (legacy union from 1910; 1969 agreement replaced)
   parties: ["Botswana", "Namibia", "South Africa", "Lesotho", "Eswatini"],
   // NEW: use multiple sources
-  sources: ["sacu-agreement-2002", "sars-tariff-book", "burs-customs-guide", "sacu-origin-internal"],
+  source: "TBD", // TODO: replace with official SACU Agreement URL or a canonical source
   coverage: {
     categories: [
       {
