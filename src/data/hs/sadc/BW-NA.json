@@ -1,0 +1,35 @@
+{
+  "pair": "BW-NA",
+  "rows": [
+    {
+      "hs6": "040221",
+      "description": "Milk and cream, concentrated, sweetened",
+      "prefDutyFrom": "0% (intra-SACU)",
+      "prefDutyTo": "0% (intra-SACU)",
+      "conditions": "SPS certificate where applicable; standard customs declaration.",
+      "rooNote": "Intra-SACU: goods in free circulation move duty-free.",
+      "sources": ["sacu-agreement-2002", "burs-customs-guide"],
+      "lastChecked": "2025-10-22"
+    },
+    {
+      "hs6": "730890",
+      "description": "Structures and parts of structures, of iron or steel",
+      "prefDutyFrom": "0% (intra-SACU)",
+      "prefDutyTo": "0% (intra-SACU)",
+      "conditions": "Standard customs docs; safety/standards may apply depending on end-use.",
+      "rooNote": "Intra-SACU: goods in free circulation move duty-free.",
+      "sources": ["sacu-agreement-2002"],
+      "lastChecked": "2025-10-22"
+    },
+    {
+      "hs6": "220300",
+      "description": "Beer made from malt",
+      "prefDutyFrom": "0% (intra-SACU)",
+      "prefDutyTo": "0% (intra-SACU)",
+      "conditions": "Excise controls and licensing apply; health permits may be required.",
+      "rooNote": "Excise movement controls apply in SACU; verify with customs/excise authority.",
+      "sources": ["sacu-agreement-2002", "sars-tariff-book"],
+      "lastChecked": "2025-10-22"
+    }
+  ]
+}

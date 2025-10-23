@@ -44,6 +44,20 @@ type Agreement = {
 };
 
 type Country = { code: string; name: string };
+// ---- HS schedule (SACU) helpers ----
+type HSRow = {
+  hs6: string;
+  description: string;
+  fromDuty: string;
+  toDuty: string;
+  conditions?: string;
+  roo?: string;
+  sources?: string[];
+};
+
+function pairKey(fromName: string, toName: string) {
+  return `${codeOf(fromName)}-${codeOf(toName)}`; // e.g., BW-NA
+}
 
 // ---------- Countries ----------
 const COUNTRIES: Country[] = [
@@ -56,24 +70,65 @@ const COUNTRIES: Country[] = [
 
 // ---------- Sample agreements (replace with real data before launch) ----------
 const AGREEMENTS: Record<string, Agreement> = {
-  SADC_FTA: {
+    SADC_FTA: {
     id: "SADC_FTA",
     name: "SADC Free Trade Area",
     kind: "regional",
     status: "in force",
-    yearOfSigning: 1996, // Protocol 1996; FTA launched later — verify for production
+    yearOfSigning: 1996, // SADC Protocol on Trade (goods). FTA launched later.
     parties: ["SADC Member States"],
+    // Tip: put an official link here when you’re ready, e.g. SADC Protocol on Trade PDF
     source: "TBD",
     coverage: {
       categories: [
-        { id: "industrial_goods", label: "Industrial goods", details: "Progressive tariff phase-downs toward duty-free trade among members." },
-        { id: "agri_goods", label: "Agricultural goods", details: "Many lines liberalised. Some sensitive lines phased. Check ROO and SPS." },
+        {
+          id: "industrial_goods",
+          label: "Industrial goods (HS 25–97, ex. some chapters)",
+          note:
+            "Most industrial tariff lines among SADC FTA participants are scheduled to zero; exact timing/coverage depends on each member’s tariff offer.",
+          details:
+            "Intra-SADC trade in manufactures is largely duty-free where both parties have implemented the FTA and list the HS lines as liberalised. Check tariff schedules and any remaining phase-downs. Rules of Origin: use SADC Product-Specific Rules (PSRs) and cumulation within SADC. Non-tariff: TBT conformity and customs documentation still apply."
+        },
+        {
+          id: "agri_goods",
+          label: "Agricultural goods (HS 01–24)",
+          note:
+            "A significant share of agri lines are liberalised, with some lines phased or excluded by individual members.",
+          details:
+            "Tariff preferences apply per national schedules. SPS (sanitary/phytosanitary) requirements continue to apply (permits, health certificates, inspections). Verify: national tariff offer, SPS permits, and any quantitative restrictions."
+        },
+        {
+          id: "roocum",
+          label: "Rules of origin & cumulation",
+          details:
+            "Preferential access requires meeting SADC Rules of Origin (general + PSRs). Cumulation generally allowed for inputs sourced in SADC. Keep supplier declarations, BOM, and processing records for verification."
+        },
+        {
+          id: "trade_facilitation",
+          label: "Trade facilitation & docs",
+          details:
+            "Typical docs: Commercial Invoice, Packing List, SADC Certificate of Origin, transport docs, permits where applicable (SPS/TBT). Check national single-window/customs portals for current process."
+        }
       ],
       sensitive: [
-        { id: "poultry", label: "Poultry products", reason: "Sensitive for several SADC states", details: "Check national schedules/safeguards." },
-        { id: "dairy", label: "Dairy", reason: "Often protected", details: "Review sensitive lists and phase-downs." },
-      ],
-    },
+        {
+          id: "member_sensitive_lines",
+          label: "Member-specific sensitive tariff lines",
+            reason:
+              "Each member may list sensitive HS lines with slower phase-down or exclusions.",
+            details:
+              "Examples vary by country and period (e.g., some meat, dairy, certain processed foods, selected textiles). Always confirm in the exporting and importing country schedules for the exact HS code before shipment."
+        },
+        {
+          id: "safeguards_qr",
+          label: "Safeguards / quotas (where notified)",
+          reason:
+            "Temporary protective measures can be applied under the Protocol within WTO-consistent rules.",
+          details:
+            "If a safeguard/TRQ is in force, duties/quantities may differ from the base preference. Verify current notices with the importing authority."
+        }
+      ]
+    }
   },
   AFCFTA: {
     id: "AFCFTA",
@@ -94,18 +149,38 @@ const AGREEMENTS: Record<string, Agreement> = {
     },
   },
   SACU: {
-    id: "SACU",
-    name: "Southern African Customs Union",
-    kind: "regional",
-    status: "in force",
-    yearOfSigning: 1969, // modern agreement 2002; choose display rule
-    parties: ["Botswana", "Namibia", "South Africa", "Lesotho", "Eswatini"],
-    source: "TBD",
-    coverage: {
-      categories: [{ id: "all_goods", label: "Intra-SACU trade", details: "Customs union with common external tariff; duty-free within SACU." }],
-      sensitive: [],
-    },
-  },
+  id: "SACU",
+  name: "Southern African Customs Union",
+  kind: "regional",
+  status: "in force",
+  yearOfSigning: 2002, // modern agreement signed 2002 (legacy union from 1910; 1969 agreement replaced)
+  parties: ["Botswana", "Namibia", "South Africa", "Lesotho", "Eswatini"],
+  // NEW: use multiple sources
+  sources: ["sacu-agreement-2002", "sars-tariff-book", "burs-customs-guide", "sacu-origin-internal"],
+  coverage: {
+    categories: [
+      {
+        id: "intra_union",
+        label: "Intra-SACU trade (duty-free circulation)",
+        details:
+          "Goods in free circulation within SACU move duty-free between members. Standard customs clearance still applies (declaration, valuation, SPS/TBT where applicable)."
+      },
+      {
+        id: "cet",
+        label: "Common External Tariff (CET)",
+        details:
+          "A single external tariff applies to extra-SACU imports. Internal movements are duty-free once goods enter SACU and are in free circulation."
+      },
+      {
+        id: "origin_and_procedures",
+        label: "Origin & procedures",
+        details:
+          "For goods produced within SACU, typical proof is commercial documentation plus customs declaration—no preference certificate like SADC Form A is needed for **internal** SACU trade. For goods first imported into SACU from outside, ensure they are in **free circulation** before re-export within SACU."
+      }
+    ],
+    sensitive: []
+  }
+},
   COMESA_FTA: {
     id: "COMESA_FTA",
     name: "COMESA Free Trade Area",
@@ -382,11 +457,18 @@ export default function ExportLookupTool() {
         </TabsList>
 
         <TabsContent value="agreements" className="mt-6">
-          <div className="grid gap-4">
-            {filtered.length === 0 && <EmptyState title="No agreements found for this pair" subtitle="Try another pair or clear your search." />}
-            {filtered.map((a) => <AgreementCard key={a.id} a={a} />)}
-          </div>
-        </TabsContent>
+  <div className="grid gap-4">
+    {filtered.length === 0 && (
+      <EmptyState title="No agreements found for this pair" subtitle="Try another pair or clear your search." />
+    )}
+    {filtered.map((a) => <AgreementCard key={a.id} a={a} />)}
+  </div>
+
+  {/* HS schedule panel (SACU examples / your JSON) */}
+  <div className="mt-6">
+    <HSPanel from={from} to={to} />
+  </div>
+</TabsContent>
 
         <TabsContent value="goods" className="mt-6">
           <Accordion type="single" collapsible className="w-full">
@@ -590,7 +672,92 @@ function PotentialPanel() {
     </Card>
   );
 }
+function HSPanel({ from, to }: { from: string; to: string }) {
+  const [rows, setRows] = useState<HSRow[] | null>(null);
+  const [missing, setMissing] = useState(false);
 
+  useEffect(() => {
+    const key = pairKey(from, to);
+    setRows(null);
+    setMissing(false);
+
+    // We serve JSON from /public/hs/sacu/<PAIR>.json (no import needed)
+    fetch(`/hs/sacu/${key}.json`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data)) setRows(data as HSRow[]);
+        else setMissing(true);
+      })
+      .catch(() => setMissing(true));
+  }, [from, to]);
+
+  if (missing) {
+    // No file found for this pair — show a gentle hint in dev
+    return (
+      <Card className="rounded-2xl border-dashed">
+        <CardHeader>
+          <CardTitle className="text-base">HS schedule (beta) — {codeOf(from)} → {codeOf(to)}</CardTitle>
+          <CardDescription>No HS rows found yet for this pair. Add a JSON file at <code>public/hs/sacu/{pairKey(from,to)}.json</code>.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  if (!rows) return null; // still loading or not applicable
+
+  return (
+    <Card className="rounded-2xl">
+      <CardHeader>
+        <CardTitle className="text-base">HS schedule (beta) — {codeOf(from)} → {codeOf(to)}</CardTitle>
+        <CardDescription>Illustrative SACU examples. Replace with your real HS6 data.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {rows.length === 0 ? (
+          <p className="text-sm text-neutral-600">No HS entries yet.</p>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border">
+            <table className="w-full text-sm">
+              <thead className="bg-neutral-50 text-left">
+                <tr>
+                  <th className="p-3">HS6</th>
+                  <th className="p-3">Description</th>
+                  <th className="p-3">From Duty</th>
+                  <th className="p-3">To Duty</th>
+                  <th className="p-3">Conditions</th>
+                  <th className="p-3">ROO / Notes</th>
+                  <th className="p-3">Sources</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={i} className="border-t align-top">
+                    <td className="p-3 whitespace-nowrap">{r.hs6}</td>
+                    <td className="p-3">{r.description}</td>
+                    <td className="p-3 whitespace-nowrap">{r.fromDuty}</td>
+                    <td className="p-3 whitespace-nowrap">{r.toDuty}</td>
+                    <td className="p-3">{r.conditions || "-"}</td>
+                    <td className="p-3">{r.roo || "-"}</td>
+                    <td className="p-3">
+                      {r.sources?.length
+                        ? r.sources.map((s, j) => (
+                            <div key={j}>
+                              <a className="underline" href={s} target="_blank" rel="noreferrer">
+                                {s}
+                              </a>
+                            </div>
+                          ))
+                        : "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 function iso2FromName(name: string) {
   return (COUNTRIES.find(c => c.name === name)?.code || "BW") as "BW"|"MW"|"NA"|"ZM"|"ZW";
 }
